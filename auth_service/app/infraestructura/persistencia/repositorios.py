@@ -3,8 +3,8 @@ from typing import Optional, List, Dict, Any
 
 # Domain Models - adjust path if your domain models are structured differently
 try:
-    from auth_service.app.dominio.modelos import Usuario, Rol, Permiso
-    from auth_service.app.dominio.value_objects import Email
+    from app.dominio.modelos import Usuario, Rol, Permiso
+    from app.dominio.value_objects import Email
 except ImportError:
     # Mock classes for environments where domain models might not be directly importable
     # This is primarily for isolated testing or development scenarios.

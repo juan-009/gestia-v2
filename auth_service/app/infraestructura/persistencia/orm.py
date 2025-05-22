@@ -7,7 +7,7 @@ from datetime import datetime
 # This might need adjustment based on how your PYTHONPATH is configured when running Alembic or the app.
 # For Alembic, env.py will handle adding 'app' to sys.path.
 try:
-    from auth_service.app.shared.config.config import settings
+    from app.shared.config.config import settings
 except ImportError:
     # This fallback might be useful if running scripts that don't have the full app context,
     # but for Alembic and the main app, the above should work.

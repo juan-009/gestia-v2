@@ -1,13 +1,13 @@
-from jose import jwt, JWTError, ExpiredSignatureError, JWTClaimsError
+from jose import jwt, JWTError, ExpiredSignatureError
 from datetime import datetime, timedelta
 from typing import Dict, Optional
 
 # Assuming the project structure allows these imports
 # If 'auth_service' is the root package name discoverable in PYTHONPATH:
-from auth_service.app.shared.config.config import settings
-from auth_service.app.infraestructura.seguridad.jwks_manager import load_pem_private_key, load_pem_public_key
-from auth_service.app.dominio.value_objects import JWTClaims
-from auth_service.app.dominio.excepciones import InvalidTokenError
+from app.shared.config.config import settings
+from app.infraestructura.seguridad.jwks_manager import load_pem_private_key, load_pem_public_key
+from app.dominio.value_objects import JWTClaims
+from app.dominio.excepciones import InvalidTokenError
 
 
 def create_access_token(
@@ -71,9 +71,7 @@ def validate_token(token: str) -> JWTClaims:
 
     except ExpiredSignatureError:
         raise InvalidTokenError("Token has expired.")
-    except JWTClaimsError as e: # Handles errors in specific claims like 'nbf' or 'exp' if they are invalid format
-        raise InvalidTokenError(f"Invalid claims in token: {str(e)}")
-    except JWTError as e: # Generic JWT error
+    except JWTError as e: # Generic JWT error (includes invalid claims)
         raise InvalidTokenError(f"Invalid token: {str(e)}")
     except FileNotFoundError as e: # Handle case where key files are not found
         # This is a server-side configuration issue, but it's good to catch it.
