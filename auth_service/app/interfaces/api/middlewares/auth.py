@@ -10,7 +10,7 @@ from typing import Optional
 
 class JWTAuthMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next: RequestResponseEndpoint) -> Response:
-        request.state.user_claims = None  # type: Optional[JWTClaims]  # Initialize with None
+        request.state.user_claims = None  # Initialize with None
 
         auth_header = request.headers.get("Authorization")
         token: Optional[str] = None
