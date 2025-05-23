@@ -28,7 +28,8 @@ share/python-wheels/
 MANIFEST
 
 # PyInstaller
-# Usually these files are written by a script, but they might be committed accidentally.
+#  Usually these files are written by a script go generate an executable file,
+#  so they are not needed in VCS locations.
 *.manifest
 *.spec
 
@@ -53,7 +54,6 @@ coverage.xml
 # Translations
 *.mo
 *.pot
-*.po
 
 # Django stuff:
 *.log
@@ -85,21 +85,28 @@ ipython_config.py
 .python-version
 
 # pipenv
-# According to Python official .gitignore template, Pipfile.lock is not ignored
+#   According to https://pipenv.pypa.io/en/latest/basics/#pipfile-vs-pipfile-lock
+#   Pipfile.lock is important and should be version controlled.
+#   However, Pipfile is equally important and should also be version controlled.
+#   Therefore, we don't ignore Pipfile.lock nor Pipfile.
 # Pipfile.lock
 
 # poetry
-# poetry.lock is not ignored by default.
-# .pdm.toml
-# pdm.lock
+#   Similar to Pipfile.lock, poetry.lock should be version controlled.
+#   Therefore, we don't ignore poetry.lock.
+# poetry.lock
 
-# PEP 582; __pypackages__ directory
+# pdm
+#   Similar to Pipfile.lock, pdm.lock should be version controlled.
+#   Therefore, we don't ignore pdm.lock.
+# pdm.lock
+# .pdm.toml
+
+# PEP 582; __pypackages__ directory specified by PEP 582 is ignored.
 __pypackages__/
 
 # Environments
 .env
-.env.*
-!.env.example # Make sure .env.example is NOT ignored
 .venv
 env/
 venv/
@@ -125,18 +132,36 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-# IDE specific files
+# pytype static checker
+.pytype/
+
+# Cython debug symbols
+cython_debug/
+
+# PyCharm
+#  JetBrains specific template is maintained in a separate JetBrains.gitignore that can
+#  be found at https://github.com/github/gitignore/blob/main/Global/JetBrains.gitignore
+#  and can be added to the global gitignore or merged into this file.
+#  Consider using https://github.com/joeblau/gitignore.io for generating a comprehensivegitignore file.
 .idea/
+*.iml
+
+# VSCode
 .vscode/
-*.sublime-project
-*.sublime-workspace
 
-# Docker
-docker-compose.override.yml
+# SQLite
+*.db
+*.sqlite
+*.sqlite3
 
-# Keys - IMPORTANT for security
-keys/
-*.pem
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
 
 # OS generated files
 .DS_Store
@@ -146,3 +171,7 @@ keys/
 .Trashes
 ehthumbs.db
 Thumbs.db
+
+# Key files
+auth_service/keys/
+*.pem
