@@ -1,28 +1,65 @@
 from fastapi import FastAPI
-from .api.endpoints import auth as auth_router
-from .api.endpoints import roles as roles_router # Import roles router
-from .db.database import create_db_and_tables # For dev convenience
+from auth_service.app.shared.config.config import settings
 
-# TODO: For production, consider using lifespan events for DB setup/teardown
-# For development, we call it here to ensure tables are created.
-# Be cautious with this approach in production (e.g., if you have multiple workers).
-# Ensure your database is running and accessible before starting the app.
-# Example: Run `python -m auth_service.db.database` once manually first.
-try:
-    create_db_and_tables() 
-    print("Database tables checked/created (if they didn't exist).")
-except Exception as e:
-    print(f"Error during initial table creation: {e}")
-    print("Please ensure your PostgreSQL server is running and accessible,")
-    print("and that the database 'auth_db' exists with correct user/password.")
-    # Depending on the severity, you might want to exit or re-raise
-    # For now, we'll let the app try to start, but it will likely fail on DB operations.
+app = FastAPI(
+    title=settings.APP_NAME,
+    version="0.1.0", # You might want to make version configurable too
+    debug=settings.DEBUG
+)
 
-app = FastAPI(title="Auth Core Service")
+# Lifespan events for Redis
+from auth_service.app.infraestructura.cache.redis_client import get_redis_pool, close_redis_pool
+
+@app.on_event("startup")
+async def startup_event():
+    try:
+        await get_redis_pool() # Establishes and pings Redis
+        print("Redis pool initialized successfully via startup event.")
+    except ConnectionError as e:
+        # Handle Redis connection error on startup, e.g., log and exit or run without cache
+        print(f"CRITICAL: Could not connect to Redis during startup: {e}")
+        # Depending on policy, you might want to sys.exit(1) if Redis is essential
+        # For now, we'll print an error and the app will continue to run,
+        # but caching features will likely fail or be disabled.
+        # The get_redis_pool itself raises ConnectionError if ping fails.
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    await close_redis_pool()
+    print("Redis pool closed via shutdown event.")
+
+# Import middlewares
+from auth_service.app.interfaces.api.middlewares.error_handler import global_exception_handler_middleware
+from auth_service.app.interfaces.api.middlewares.auth import JWTAuthMiddleware
+# from fastapi.middleware.cors import CORSMiddleware # Example, if needed
+
+# Add Error Handler Middleware using the old style (app.middleware("http"))
+# This will be one of the outermost layers, catching errors from subsequent middlewares and routes.
+app.middleware("http")(global_exception_handler_middleware)
+
+# Add JWT Auth Middleware (runs after error handler in terms of wrapping response, before in terms of processing request)
+app.add_middleware(JWTAuthMiddleware)
+
+# Example CORS (if needed, configure origins appropriately)
+# app.add_middleware(
+#     CORSMiddleware,
+#     allow_origins=["*"], # Or specific origins: e.g., ["http://localhost:3000"]
+#     allow_credentials=True,
+#     allow_methods=["*"],
+#     allow_headers=["*"],
+# )
+
+# Import and include routers
+from auth_service.app.interfaces.api.v1.routers import auth as auth_router
+from auth_service.app.interfaces.api.v1.routers import permissions as permissions_router
+from auth_service.app.interfaces.api.v1.routers import roles as roles_router
+from auth_service.app.interfaces.api.v1.routers import usuarios as usuarios_router # New
 
 app.include_router(auth_router.router)
-app.include_router(roles_router.router) # Register roles router
+app.include_router(permissions_router.router)
+app.include_router(roles_router.router)
+app.include_router(usuarios_router.router) # New
 
 @app.get("/")
 async def root():
-    return {"message": "Welcome to Auth Core Service"}
+    return {"message": f"Welcome to {settings.APP_NAME}"}

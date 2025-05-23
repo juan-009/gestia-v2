@@ -1,0 +1,29 @@
+[tool.poetry]
+name = "auth-service"
+version = "0.1.0"
+description = "Enterprise Authentication Service"
+authors = ["Juan <juancarlosgarces@gmail.com>"]
+readme = "README.md"  # Asegúrate de que este archivo existe
+package-mode = false  # Poetry solo gestionará dependencias
+
+[tool.poetry.dependencies]
+python = ">=3.10"  # Especificar versión de Python es recomendado
+fastapi = "^0.100.0"
+pydantic = {extras = ["email"], version = "^2.0.0"}
+uvicorn = {extras = ["standard"], version = "^0.23.0"}
+sqlalchemy = "^2.0.0"
+psycopg2-binary = "^2.9.0"
+python-jose = {extras = ["cryptography"], version = "^3.3.0"}
+bcrypt = "^4.0.0"
+passlib = {extras = ["bcrypt"], version = "^1.7.4"}
+python-dotenv = "^1.0.0"
+alembic = "^1.11.0"
+pydantic-settings = "^2.0.0"  # Para configuración avanzada en Pydantic v2
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^7.0.0"
+httpx = "^0.24.0"  # Para pruebas de FastAPI
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
